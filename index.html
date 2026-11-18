@@ -70,7 +70,11 @@
     white-space: normal;
     text-align: center;
   }
-  .links .button[href^="https://www.instagram.com/"] { display: none; }
+  .links .button[href^="https://www.instagram.com/"] {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc((100% - 8px) / 2);
+  }
 }
 .hero-copy .hero-service {
   margin: 0 0 12px;
