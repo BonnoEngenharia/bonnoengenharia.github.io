@@ -1,3 +1,6 @@
+function calcular(area,pav,tipo){if(!(Number.isFinite(area)&&area>0&&Number.isInteger(pav)&&pav>0))return null;if(tipo!=='convencional'||area>1000||pav>10)return {valor:null,regra:'Sob análise técnica, sem preço automático.'};if(pav<=2){if(area<=80)return {valor:2000,regra:'Até 2 pavimentos e até 80 m²: preço fixo.'};if(area<=240)return {valor:Math.max(3000,area*12),regra:'R$ 12/m², com mínimo de R$ 3.000.'};return {valor:area*15,regra:'R$ 15/m² sobre a área total.'};}const taxa=pav<=6?20:({7:25,8:26.67,9:28.33,10:30})[pav];return {valor:Math.round(area*taxa*100)/100,regra:`R$ ${taxa.toFixed(2).replace('.',',')}/m² sobre a área total.`};}
+const formatarPreco = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+
 const form = document.getElementById('form');
 const nome = document.getElementById('nome');
 const cidade = document.getElementById('cidade');
@@ -5,8 +8,25 @@ const area = document.getElementById('area');
 const pavimentos = document.getElementById('pav');
 const servico = document.getElementById('tipo');
 
+const quoteValue = document.getElementById('quote-value');
+const quoteDetail = document.getElementById('quote-detail');
+
+function atualizarEstimativa() {
+  const estimativa = calcular(area.valueAsNumber, pavimentos.valueAsNumber, servico.value);
+  quoteValue.textContent = !estimativa ? 'Informe a área e o número de pavimentos.' :
+    estimativa.valor === null ? 'Sob consulta' : formatarPreco.format(estimativa.valor);
+  quoteDetail.textContent = estimativa?.regra ?? '';
+  return estimativa;
+}
+
+[area, pavimentos, servico].forEach(campo => campo.addEventListener('input', atualizarEstimativa));
+atualizarEstimativa();
+
 form.addEventListener('submit', event => {
   event.preventDefault();
+  const estimativa = atualizarEstimativa();
+  if (!estimativa) return;
+  const valor = estimativa.valor === null ? 'Sob consulta' : formatarPreco.format(estimativa.valor);
   const mensagem = [
     'Olá, Bonno Engenharia e Arquitetura! Gostaria de solicitar um orçamento.',
     '',
@@ -15,6 +35,7 @@ form.addEventListener('submit', event => {
     `Área total construída: ${area.value} m²`,
     `Pavimentos: ${pavimentos.value}`,
     `Serviço: ${servico.selectedOptions[0].text}`,
+    `Estimativa preliminar: ${valor}`,
   ].join('\n');
   window.open('https://wa.me/5528999340406?text=' + encodeURIComponent(mensagem), '_blank', 'noopener');
 });
