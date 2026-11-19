@@ -1,5 +1,23 @@
-function calcular(area,pav,tipo){if(!(Number.isFinite(area)&&area>0&&Number.isInteger(pav)&&pav>0))return null;if(tipo!=='convencional'||pav>10)return {valor:null,regra:'Sob análise técnica, sem preço automático.'};if(pav<=2){if(area<=80)return {valor:2000,regra:'Até 2 pavimentos e até 80 m²: preço fixo.'};if(area<=240)return {valor:Math.max(3000,area*12),regra:'R$ 12/m², com mínimo de R$ 3.000.'};return {valor:area*15,regra:'R$ 15/m² sobre a área total.'};}const taxa=pav<=6?20:({7:25,8:26.67,9:28.33,10:30})[pav];return {valor:Math.round(area*taxa*100)/100,regra:`R$ ${taxa.toFixed(2).replace('.',',')}/m² sobre a área total.`};}
-const money=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(n);const $=id=>document.getElementById(id);function atualizar(){const r=calcular(Number($('area').value),Number($('pav').value),$('tipo').value);$('valor').textContent=$('tipo').value!=='convencional'?'Sob consulta':(r?(r.valor===null?'Sob consulta':money(r.valor)):'Informe área e pavimentos');$('regra').textContent=$('tipo').value!=='convencional'?'Preencha os dados e envie sua solicitação pelo WhatsApp.':(r?r.regra:'');return r;}['area','pav','tipo'].forEach(id=>$(id).addEventListener('input',atualizar));$('form').addEventListener('submit',e=>{e.preventDefault();const r=atualizar();if(!r){$('erro').textContent='Informe uma área positiva e um número inteiro de pavimentos.';return;}$('erro').textContent='';const condicoes=$('tipo').value==='convencional'?'Estou ciente de que a estimativa depende da conferência do projeto arquitetônico, das áreas, do grau de dificuldade, dos balanços, do tipo de obra e de laje e do escopo. Enviarei o projeto legal de arquitetura em PDF ou DWG para confirmação.':'Solicito uma proposta sob consulta, sem preço automático. Vou combinar com a equipe o escopo e o envio dos documentos necessários.';const texto=`Olá, Bonno Engenharia e Arquitetura! Gostaria de solicitar uma proposta.\n\nNome: ${$('nome').value.trim()}\nCidade/UF: ${$('cidade').value.trim()}\nÁrea total construída: ${$('area').value} m²\nPavimentos: ${$('pav').value}\nServiço: ${$('tipo').selectedOptions[0].text}\nEstimativa preliminar: ${r.valor===null?'Sob consulta':money(r.valor)}\nRegra: ${r.regra}\n\n${condicoes} Contratação e pagamento serão combinados pelo WhatsApp.`;window.open('https://wa.me/5528999340406?text='+encodeURIComponent(texto),'_blank','noopener');});
+const form = document.getElementById('form');
+const nome = document.getElementById('nome');
+const cidade = document.getElementById('cidade');
+const area = document.getElementById('area');
+const pavimentos = document.getElementById('pav');
+const servico = document.getElementById('tipo');
+
+form.addEventListener('submit', event => {
+  event.preventDefault();
+  const mensagem = [
+    'Olá, Bonno Engenharia e Arquitetura! Gostaria de solicitar um orçamento.',
+    '',
+    `Nome: ${nome.value.trim()}`,
+    `Cidade/UF: ${cidade.value.trim()}`,
+    `Área total construída: ${area.value} m²`,
+    `Pavimentos: ${pavimentos.value}`,
+    `Serviço: ${servico.selectedOptions[0].text}`,
+  ].join('\n');
+  window.open('https://wa.me/5528999340406?text=' + encodeURIComponent(mensagem), '_blank', 'noopener');
+});
 
 document.querySelectorAll('[data-gallery]').forEach(button=>button.addEventListener('click',()=>{const choice=button.dataset.gallery;document.querySelectorAll('[data-gallery]').forEach(b=>{const active=b===button;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});['arquitetura','estrutura','tecnico'].forEach(kind=>{document.getElementById('res-'+kind).hidden=kind!==choice;});}));
 
